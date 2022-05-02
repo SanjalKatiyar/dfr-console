@@ -7,6 +7,11 @@
   "repository": "git@github.com:SanjalKatiyar/dfr-console.git",
   "scripts": {
     "clean": "rm -rf dist",
+    "cypress-merge": "mochawesome-merge ./gui-test-screenshots/cypress_report*.json > ./gui-test-screenshots/cypress.json",
+    "cypress-generate": "marge -o ./gui-test-screenshots/ -f cypress-report -t 'OpenShift Console Cypress Test Results' -p 'OpenShift Cypress Test Results' --showPassed false --assetsDir ./gui-test-screenshots/cypress/assets ./gui-test-screenshots/cypress.json",
+    "cypress-postreport": "yarn cypress-merge && yarn cypress-generate",
+    "test-cypress": "node_modules/.bin/cypress open --config-file ./cypress/cypress.json --env openshift=true",
+    "test-cypress-headless": "node --max-old-space-size=4096 node_modules/.bin/cypress run --config-file ./cypress/cypress.json --env openshift=true --browser ${BRIDGE_E2E_BROWSER_NAME:=chrome} --headless",
     "build": "yarn clean && NODE_ENV=production yarn ts-node node_modules/.bin/webpack",
     "build-dev": "yarn clean && yarn ts-node ./node_modules/.bin/webpack",
     "dev": "yarn clean && yarn ts-node ./node_modules/.bin/webpack serve",
@@ -37,6 +42,9 @@
     "react-router-dom": "5.2.0"
   },
   "devDependencies": {
+    "@cypress/webpack-preprocessor": "^5.9.1",
+    "cypress": "^8.3.1",
+    "cypress-multi-reporters": "^1.5.0",
     "@openshift-console/dynamic-plugin-sdk": "0.0.4",
     "@openshift-console/dynamic-plugin-sdk-internal": "0.0.2",
     "@openshift-console/dynamic-plugin-sdk-internal-kubevirt": "^0.0.10",
