@@ -2,8 +2,8 @@
 
 set -eExuo pipefail
 
-NAMESPACE=""        # TODO
-DF_CONSOLE_IMAGE="" # TODO
+NAMESPACE=""            # TODO
+MCG_MS_CONSOLE_IMAGE="" # TODO
 
 function generateLogsAndCopyArtifacts {
   oc cluster-info dump >"${ARTIFACT_DIR}"/cluster_info.json
@@ -15,7 +15,7 @@ function generateLogsAndCopyArtifacts {
   oc get installplan -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/installplan.yaml
   oc get nodes -o yaml >>"${ARTIFACT_DIR}"/node.yaml
   oc get pods -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/pod_details_"$NAMESPACE".yaml
-  for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "df-console"); do
+  for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg-ms-console"); do
     echo "$pod"
     oc logs "$pod" -n "$NAMESPACE" >"${ARTIFACT_DIR}"/"${pod}".log
   done
@@ -95,15 +95,15 @@ echo "Restarting pods for secret update"
 deleteAllPods "$NAMESPACE"
 sleep 120
 
-# Enable console plugin for DF-Console
+# Enable console plugin for mcg-ms-console
 export CONSOLE_CONFIG_NAME="cluster"
-export DF_PLUGIN_NAME="df-console"
+export DF_PLUGIN_NAME="mcg-ms-console"
 
 DF_CSV_NAME="$(oc get csv -n "$NAMESPACE" -o=jsonpath='{.items[?(@.spec.displayName=="OpenShift Data Foundation")].metadata.name}')"
 export DF_CSV_NAME
 
 oc patch csv "${DF_CSV_NAME}" -n "$NAMESPACE" --type='json' -p \
-  "[{'op': 'replace', 'path': '/spec/install/spec/deployments/1/spec/template/spec/containers/0/image', 'value': \"${DF_CONSOLE_IMAGE}\"}]"
+  "[{'op': 'replace', 'path': '/spec/install/spec/deployments/1/spec/template/spec/containers/0/image', 'value': \"${MCG_MS_CONSOLE_IMAGE}\"}]"
 
 # Installation occurs.
 # This is also the default case if the CSV is in "Installing" state initially.
