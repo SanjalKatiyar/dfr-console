@@ -2,8 +2,8 @@
 
 set -eExuo pipefail
 
-NAMESPACE=""
-DF_CONSOLE_IMAGE=""
+NAMESPACE=""        # TODO
+DF_CONSOLE_IMAGE="" # TODO
 
 function generateLogsAndCopyArtifacts {
   oc cluster-info dump >"${ARTIFACT_DIR}"/cluster_info.json
@@ -36,7 +36,6 @@ trap generateLogsAndCopyArtifacts EXIT
 trap generateLogsAndCopyArtifacts ERR
 
 PULL_SECRET_PATH="/var/run/operator-secret/dockerconfig"
-NAMESPACE="openshift-marketplace"
 SECRET_NAME="df-secret"
 ARTIFACT_DIR=${ARTIFACT_DIR:=/tmp/artifacts}
 SCREENSHOTS_DIR=gui-test-screenshots
