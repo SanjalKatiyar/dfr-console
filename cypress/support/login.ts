@@ -1,11 +1,11 @@
-import { KUBEADMIN_IDP, KUBEADMIN_USERNAME } from '../consts';
+import { BRIDGE_PASSWORD, KUBEADMIN_IDP, KUBEADMIN_USERNAME } from '../consts';
 import { submitButton, masthead } from './views';
 
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
       login(
-        providerName?: string,
+        provider?: string,
         username?: string,
         password?: string
       ): Chainable<Element>;
@@ -31,7 +31,7 @@ Cypress.Commands.add(
       cy.clearCookie('openshift-session-token');
 
       const idp = provider || KUBEADMIN_IDP;
-      cy.task('log', `  Logging in as ${username || KUBEADMIN_USERNAME}`);
+      cy.task('log', ` Logging in as ${username || KUBEADMIN_USERNAME}`);
       cy.byLegacyTestID('login').should('be.visible');
       cy.get('body').then(($body) => {
         if ($body.text().includes(idp)) {
@@ -40,7 +40,7 @@ Cypress.Commands.add(
       });
       cy.get('#inputUsername').type(username || KUBEADMIN_USERNAME);
       cy.get('#inputPassword').type(
-        password || Cypress.env('BRIDGE_KUBEADMIN_PASSWORD')
+        password || Cypress.env(BRIDGE_PASSWORD)
       );
       cy.get(submitButton).click();
       masthead.username.shouldBeVisible();

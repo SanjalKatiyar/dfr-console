@@ -1,10 +1,12 @@
+import { BRIDGE_PASSWORD } from "../consts";
+
 export const submitButton = 'button[type=submit]';
 export const masthead = {
   username: {
     shouldBeVisible: () =>
       cy
         .byTestID(
-          Cypress.env('BRIDGE_KUBEADMIN_PASSWORD')
+          Cypress.env(BRIDGE_PASSWORD)
             ? 'user-dropdown'
             : 'username'
         )
@@ -12,7 +14,7 @@ export const masthead = {
     shouldHaveText: (text: string) =>
       cy
         .byTestID(
-          Cypress.env('BRIDGE_KUBEADMIN_PASSWORD')
+          Cypress.env(BRIDGE_PASSWORD)
             ? 'user-dropdown'
             : 'username'
         )
