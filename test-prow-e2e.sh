@@ -68,7 +68,6 @@ oc patch operatorhub.config.openshift.io/cluster -p='{"spec":{"sources":[{"disab
 
 echo "Creating secret for CI builds in ${NAMESPACE}"
 createSecret ${NAMESPACE}
-oc apply -f openshift-ci/mcg-ms-catalog-source.yaml
 
 echo "Waiting for CatalogSource to be Ready"
 # Have to sleep here for atleast 1 min to ensure catalog source is in stable READY state
