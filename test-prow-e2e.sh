@@ -4,12 +4,13 @@
 # -E: If any command in a pipeline errors, the entire pipeline exits with a non-zero status.
 # -x: Print each command before it is executed.
 # -u: Treat unset variables as an error when substituting.
-set -eExu
+# -o pipefail: If any command in a pipeline fails, the entire pipeline fails.
+set -eExuo pipefail
 
 ARTIFACTS_DIRECTORY="${ARTIFACTS_DIRECTORY:=/tmp/artifacts}"
 BRIDGE_BASE_ADDRESS="$(oc get consoles.config.openshift.io cluster -o jsonpath='{.status.consoleURL}')"
 BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR}/auth/kubeadmin-password}")"
-INSTALLER_DIR=${INSTALLER_DIR:=${ARTIFACTS_DIRECTORY}/installer}
+INSTALLER_DIR=${INSTALLER_DIR:="${ARTIFACTS_DIRECTORY}/installer}"
 NAMESPACE="redhat-data-federation"
 
 function fetchManifests {
@@ -22,7 +23,7 @@ function fetchManifests {
 fetchManifests
 
 function generateLogsAndCopyArtifacts {
-    oc cluster-info dump >"${ARTIFACTS_DIRECTORY}"/cluster_info.json
+    oc cluster-info dump >>"${ARTIFACTS_DIRECTORY}"/cluster-info.json
     oc get catalogsource -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/catalogsources.yaml
     oc get console.v1.operator.openshift.io cluster -o yaml >>"${ARTIFACTS_DIRECTORY}"/cluster.yaml
     oc get csvs -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/clusterserviceversions.yaml
@@ -31,7 +32,7 @@ function generateLogsAndCopyArtifacts {
     oc get serviceaccounts -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/serviceaccount.yaml
     oc get subscriptions -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/subscriptions.yaml
     for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg"); do
-        oc logs "$pod" -n "$NAMESPACE" >"${ARTIFACTS_DIRECTORY}"/"${pod}".log
+        oc logs "$pod" -n "$NAMESPACE" >>"${ARTIFACTS_DIRECTORY}"/"${pod}".log
     done
 }
 
