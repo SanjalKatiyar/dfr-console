@@ -12,7 +12,6 @@ function fetchManifests {
 fetchManifests
 
 NAMESPACE="redhat-data-federation"
-MCG_MS_CONSOLE_IMAGE="mcg-ms-console"
 
 function generateLogsAndCopyArtifacts {
     oc cluster-info dump >"${ARTIFACT_DIR}"/cluster_info.json
@@ -51,21 +50,6 @@ SCREENSHOTS_DIR=gui-test-screenshots
 export CONSOLE_CONFIG_NAME="cluster"
 export MCG_OSD_PLUGIN_NAME="mcg-ms-console"
 
-MCG_OSD_CSV_NAME="$(oc get csv -n "$NAMESPACE" -o=jsonpath='{.items[?(@.spec.displayName=="MCG OSD Deployer")].metadata.name}')"
-export MCG_OSD_CSV_NAME
-
-oc patch csv "${MCG_OSD_CSV_NAME}" -n "$NAMESPACE" --type='json' -p \
-    "[{'op': 'replace', 'path': '/spec/install/spec/deployments/1/spec/template/spec/containers/0/image', 'value': \"${MCG_MS_CONSOLE_IMAGE}\"}]"
-
-# Installation occurs.
-# This is also the default case if the CSV is in "Installing" state initially.
-timeout 15m bash <<-'EOF'
-echo "waiting for ${MCG_OSD_CSV_NAME} clusterserviceversion to succeed"
-until [ "$(oc -n "$NAMESPACE" get csv -o=jsonpath="{.items[?(@.metadata.name==\"${MCG_OSD_CSV_NAME}\")].status.phase}")" == "Succeeded" ]; do
-  sleep 1
-done
-EOF
-
 INSTALLER_DIR=${INSTALLER_DIR:=${ARTIFACT_DIR}/installer}
 
 BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR}/auth/kubeadmin-password}")"
@@ -81,6 +65,9 @@ export NO_COLOR=1
 yarn install
 
 # Run tests.
+# `cy.install` will be responsible for:
+# - pointing the CSV to the newly built mcg-ms-console PR's image
+# - checking and proceeding only if the CSV is in "Succeeded" state
 yarn run test-cypress-headless
 
 # Generate Cypress report.
