@@ -44,70 +44,14 @@ function generateLogsAndCopyArtifacts {
 trap generateLogsAndCopyArtifacts EXIT
 trap generateLogsAndCopyArtifacts ERR
 
-PULL_SECRET_PATH="/var/run/operator-secret/dockerconfig"
-SECRET_NAME="mcg-ms-secret"
 ARTIFACT_DIR=${ARTIFACT_DIR:=/tmp/artifacts}
 SCREENSHOTS_DIR=gui-test-screenshots
-
-function createSecret {
-    oc create secret generic "${SECRET_NAME}" --from-file=.dockerconfigjson=${PULL_SECRET_PATH} --type=kubernetes.io/dockerconfigjson -n "$1"
-}
-
-function linkSecrets {
-    for serviceAccount in $(oc get serviceaccounts -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | sed 's/"//g'); do
-        echo "Linking ${SECRET_NAME} to ${serviceAccount}"
-        oc secrets link "${serviceAccount}" "${SECRET_NAME}" -n "$NAMESPACE" --for=pull
-    done
-}
-
-function deleteAllPods {
-    oc delete pods --all -n "$1"
-}
-
-oc patch operatorhub.config.openshift.io/cluster -p='{"spec":{"sources":[{"disabled":true,"name":"redhat-operators"}]}}' --type=merge
-
-echo "Creating secret for CI builds in ${NAMESPACE}"
-createSecret ${NAMESPACE}
-
-echo "Waiting for CatalogSource to be Ready"
-# Have to sleep here for atleast 1 min to ensure catalog source is in stable READY state
-sleep 60
-
-echo "Creating secret for linking pods"
-createSecret "$NAMESPACE"
-
-echo "Adding secret to all service accounts in \"$NAMESPACE\" namespace"
-linkSecrets
-
-echo "Restarting pods for secret update"
-deleteAllPods "$NAMESPACE"
-sleep 30
-
-echo "Adding secret to all service accounts in \"$NAMESPACE\" namespace"
-linkSecrets
-
-echo "Restarting pods for secret update"
-deleteAllPods "$NAMESPACE"
-sleep 120
-
-echo "Adding secret to all service accounts in \"$NAMESPACE\" namespace"
-linkSecrets
-
-echo "Restarting pods for secret update"
-deleteAllPods "$NAMESPACE"
-
-echo "Adding secret to all service accounts in \"$NAMESPACE\" namespace"
-linkSecrets
-
-echo "Restarting pods for secret update"
-deleteAllPods "$NAMESPACE"
-sleep 120
 
 # Enable console plugin for mcg-ms-console
 export CONSOLE_CONFIG_NAME="cluster"
 export MCG_OSD_PLUGIN_NAME="mcg-ms-console"
 
-MCG_OSD_CSV_NAME="$(oc get csv -n "$NAMESPACE" -o=jsonpath='{.items[?(@.spec.displayName=="OpenShift Data Foundation")].metadata.name}')"
+MCG_OSD_CSV_NAME="$(oc get csv -n "$NAMESPACE" -o=jsonpath='{.items[?(@.spec.displayName=="MCG OSD Deployer")].metadata.name}')"
 export MCG_OSD_CSV_NAME
 
 oc patch csv "${MCG_OSD_CSV_NAME}" -n "$NAMESPACE" --type='json' -p \
