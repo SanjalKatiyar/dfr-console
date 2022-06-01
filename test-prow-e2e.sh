@@ -7,13 +7,16 @@
 # -o pipefail: If any command in a pipeline fails, the entire pipeline fails.
 set -eExuo pipefail
 
-ARTIFACTS_DIRECTORY="${ARTIFACTS_DIRECTORY:=/tmp/artifacts}"
-BRIDGE_BASE_ADDRESS="$(oc get consoles.config.openshift.io cluster -o jsonpath='{.status.consoleURL}')"
-BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR}/auth/kubeadmin-password}")"
-INSTALLER_DIR=${INSTALLER_DIR:="${ARTIFACTS_DIRECTORY}/installer}"
+ARTIFACTS_DIRECTORY="/logs/artifacts"
 NAMESPACE="redhat-data-federation"
+GENERATED="cypress-gen"
+
+# Declare and assign separately to avoid masking return values. Refer https://www.shellcheck.net/wiki/SC2155
+BRIDGE_BASE_ADDRESS="$(oc get consoles.config.openshift.io cluster -o jsonpath='{.status.consoleURL}')"
+BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR:=${ARTIFACTS_DIRECTORY}/installer}/auth/kubeadmin-password}")"
 
 function fetchManifests {
+    declare -a resources=() # Recent BASH change, refer https://stackoverflow.com/a/28058737.
     resources=("namespace" "secrets" "operatorgroup" "catalogsource")
     for resource in "${resources[@]}"; do
         oc create -f "https://raw.githubusercontent.com/red-hat-storage/mcg-osd-deployer/main/hack/deploy/${resource}.yaml"
@@ -34,6 +37,8 @@ function generateLogsAndCopyArtifacts {
     for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg"); do
         oc logs "$pod" -n "$NAMESPACE" >>"${ARTIFACTS_DIRECTORY}"/"${pod}".log
     done
+    # Capture multiple instances of the generated data (error and/or exit signals).
+    cp -r "$GENERATED" "$ARTIFACTS_DIRECTORY/$GENERATED-$RANDOM"
 }
 
 # Gather cluster metadata on error or exit signals raised by this script.
