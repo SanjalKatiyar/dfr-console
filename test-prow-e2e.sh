@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-set -eExuo pipefail
+# -e: Exit immediately if a pipeline, a list, or a compound command, exits with a non-zero status.
+# -E: If any command in a pipeline errors, the entire pipeline exits with a non-zero status.
+# -x: Print each command before it is executed.
+# -u: Treat unset variables as an error when substituting.
+set -eExu
+
+ARTIFACTS_DIRECTORY="${ARTIFACTS_DIRECTORY:=/tmp/artifacts}"
+BRIDGE_BASE_ADDRESS="$(oc get consoles.config.openshift.io cluster -o jsonpath='{.status.consoleURL}')"
+BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR}/auth/kubeadmin-password}")"
+INSTALLER_DIR=${INSTALLER_DIR:=${ARTIFACTS_DIRECTORY}/installer}
+NAMESPACE="redhat-data-federation"
 
 function fetchManifests {
     resources=("namespace" "secrets" "operatorgroup" "catalogsource")
@@ -11,63 +21,40 @@ function fetchManifests {
 
 fetchManifests
 
-NAMESPACE="redhat-data-federation"
-
 function generateLogsAndCopyArtifacts {
-    oc cluster-info dump >"${ARTIFACT_DIR}"/cluster_info.json
-    oc get secrets -A -o yaml >>"${ARTIFACT_DIR}"/secrets.yaml
-    oc get catalogsource -A -o yaml >>"${ARTIFACT_DIR}"/catalogsource.yaml
-    oc get subscriptions -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/subscription_details.yaml
-    oc get csvs -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/csvs.yaml
-    oc get deployments -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/deployment_details.yaml
-    oc get installplan -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/installplan.yaml
-    oc get nodes -o yaml >>"${ARTIFACT_DIR}"/node.yaml
-    oc get pods -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/pod_details_"$NAMESPACE".yaml
-    for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg-ms-console"); do
-        echo "$pod"
-        oc logs "$pod" -n "$NAMESPACE" >"${ARTIFACT_DIR}"/"${pod}".log
+    oc cluster-info dump >"${ARTIFACTS_DIRECTORY}"/cluster_info.json
+    oc get catalogsource -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/catalogsources.yaml
+    oc get console.v1.operator.openshift.io cluster -o yaml >>"${ARTIFACTS_DIRECTORY}"/cluster.yaml
+    oc get csvs -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/clusterserviceversions.yaml
+    oc get deployments -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/deployments.yaml
+    oc get secrets -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/secrets.yaml
+    oc get serviceaccounts -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/serviceaccount.yaml
+    oc get subscriptions -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/subscriptions.yaml
+    for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg"); do
+        oc logs "$pod" -n "$NAMESPACE" >"${ARTIFACTS_DIRECTORY}"/"${pod}".log
     done
-    oc get serviceaccounts -n "$NAMESPACE" -o yaml >>"${ARTIFACT_DIR}"/serviceaccount.yaml
-    oc get console.v1.operator.openshift.io cluster -o yaml >>"${ARTIFACT_DIR}"/cluster.yaml
-
-    if [ -d "$ARTIFACT_DIR" ] && [ -d "$SCREENSHOTS_DIR" ]; then
-        if [[ -z "$(ls -A -- "$SCREENSHOTS_DIR")" ]]; then
-            echo "No artifacts were copied."
-        else
-            echo "Copying artifacts from $(pwd)..."
-            cp -r "$SCREENSHOTS_DIR" "${ARTIFACT_DIR}/gui-test-screenshots"
-        fi
-    fi
 }
 
-trap generateLogsAndCopyArtifacts EXIT
+# Gather cluster metadata on error or exit signals raised by this script.
 trap generateLogsAndCopyArtifacts ERR
-
-ARTIFACT_DIR=${ARTIFACT_DIR:=/tmp/artifacts}
-SCREENSHOTS_DIR=gui-test-screenshots
+trap generateLogsAndCopyArtifacts EXIT
 
 # Enable console plugin for mcg-ms-console
-export CONSOLE_CONFIG_NAME="cluster"
-export MCG_OSD_PLUGIN_NAME="mcg-ms-console"
-
-INSTALLER_DIR=${INSTALLER_DIR:=${ARTIFACT_DIR}/installer}
-
-BRIDGE_KUBEADMIN_PASSWORD="$(cat "${KUBEADMIN_PASSWORD_FILE:-${INSTALLER_DIR}/auth/kubeadmin-password}")"
-export BRIDGE_KUBEADMIN_PASSWORD
-BRIDGE_BASE_ADDRESS="$(oc get consoles.config.openshift.io cluster -o jsonpath='{.status.consoleURL}')"
-export BRIDGE_BASE_ADDRESS
-
 # Disable color codes in Cypress since they do not render well CI test logs.
 # https://docs.cypress.io/guides/guides/continuous-integration.html#Colors
 export NO_COLOR=1
+export BRIDGE_BASE_ADDRESS
+export BRIDGE_KUBEADMIN_PASSWORD
+export CONSOLE_CONFIG_NAME="cluster"
+export MCG_OSD_PLUGIN_NAME="mcg-ms-console"
 
 # Install dependencies.
 yarn install
 
 # Run tests.
-# `cy.install` will be responsible for:
-# - pointing the CSV to the newly built mcg-ms-console PR's image
-# - checking and proceeding only if the CSV is in "Succeeded" state
+# Cypress helpers will be responsible for:
+# - Checking and proceeding only if the operator CSV is in a "Succeeded" state.
+# - Pointing the CSV to the newly built "mcg-ms-console" image from the raised PR.
 yarn run test-cypress-headless
 
 # Generate Cypress report.

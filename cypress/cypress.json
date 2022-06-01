@@ -2,8 +2,8 @@
   "viewportWidth": 1920,
   "viewportHeight": 1080,
   "integrationFolder": "cypress/tests/",
-  "screenshotsFolder": "gui-test-screenshots/screenshots/",
-  "videosFolder": "gui-test-screenshots/videos/",
+  "screenshotsFolder": "cypress-gen/screenshots/",
+  "videosFolder": "cypress-gen/videos/",
   "video": true,
   "reporter": "node_modules/cypress-multi-reporters",
   "reporterOptions": {
