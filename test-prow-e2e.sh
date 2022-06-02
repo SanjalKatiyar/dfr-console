@@ -31,14 +31,11 @@ function generateLogsAndCopyArtifacts {
     oc get console.v1.operator.openshift.io cluster -o yaml >>"${ARTIFACTS_DIRECTORY}"/cluster.yaml
     oc get csvs -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/clusterserviceversions.yaml
     oc get deployments -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/deployments.yaml
+    oc get pods -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/pods.yaml
     oc get secrets -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/secrets.yaml
     oc get serviceaccounts -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/serviceaccount.yaml
     oc get subscriptions -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/subscriptions.yaml
-    for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg"); do
-        oc logs --previous=false "$pod" -n "$NAMESPACE" >>"${ARTIFACTS_DIRECTORY}"/"${pod}".log
-    done
-    # Capture multiple instances of the generated data (error and/or exit signals).
-    cp -r "$GENERATED" "$ARTIFACTS_DIRECTORY/$GENERATED-$RANDOM"
+    cp -r "$GENERATED" "$ARTIFACTS_DIRECTORY/$GENERATED"
 }
 
 # Gather cluster metadata on error or exit signals raised by this script.
