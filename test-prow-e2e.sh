@@ -35,7 +35,7 @@ function generateLogsAndCopyArtifacts {
     oc get serviceaccounts -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/serviceaccount.yaml
     oc get subscriptions -n "$NAMESPACE" -o yaml >>"${ARTIFACTS_DIRECTORY}"/subscriptions.yaml
     for pod in $(oc get pods -n "$NAMESPACE" --no-headers -o custom-columns=":metadata.name" | grep "mcg"); do
-        oc logs "$pod" -n "$NAMESPACE" >>"${ARTIFACTS_DIRECTORY}"/"${pod}".log
+        oc logs --previous=false "$pod" -n "$NAMESPACE" >>"${ARTIFACTS_DIRECTORY}"/"${pod}".log
     done
     # Capture multiple instances of the generated data (error and/or exit signals).
     cp -r "$GENERATED" "$ARTIFACTS_DIRECTORY/$GENERATED-$RANDOM"
