@@ -10,16 +10,16 @@
 set -eExuo pipefail
 
 export MCG_DISPLAY_NAME="MCG OSD Deployer"
+
 # Check if the addon is already successfully installed.
-if [[ $(oc get csv -n redhat-data-federation | grep mcg-osd-deployer | wc -l) -gt 0 ]]; then
-# @TODO: uncomment this check when the after-patch issue (operator transitioning from "Succeeded" to "Installing" for a long time) is resolved.
-#  timeout 10m bash <<-'EOF'
-#  until [[ $(oc get csv -n redhat-data-federation -o=jsonpath="{.items[?(@.spec.displayName==\"${MCG_DISPLAY_NAME}\")].status.phase}") == "Succeeded" ]]; do
-#      echo "Waiting for ${MCG_DISPLAY_NAME} to reach succeeded state..."
-#      sleep 5
-#  done
-#EOF
-  exit 0
+if [[ $(oc get csv -n redhat-data-federation | grep -c mcg-osd-deployer) -gt 0 ]]; then
+    timeout 3m bash <<-'EOF'
+     until [[ $(oc get csv -n redhat-data-federation -o=jsonpath="{.items[?(@.spec.displayName==\"${MCG_DISPLAY_NAME}\")].status.phase}") == "Succeeded" ]]; do
+         echo "Waiting for ${MCG_DISPLAY_NAME} to reach succeeded state"
+         sleep 5
+     done
+EOF
+    exit 0
 fi
 
 function installMCGAddon {
@@ -59,6 +59,11 @@ EOF
 # Enable console plugin for the MCG addon.
 oc patch console.v1.operator.openshift.io cluster --type=json -p="[{'op': 'add', 'path': '/spec/plugins', 'value':[\"${MCG_PLUGIN_NAME}\"]}]"
 
-# Use the appropriate image for the MCG console plugin.
-oc patch csv "${MCG_CSV_NAME}" -n redhat-data-federation --type='json' -p \
-    "[{'op': 'replace', 'path': '/spec/install/spec/deployments/1/spec/template/spec/containers/0/image', 'value': \"${MCG_CONSOLE_IMAGE}\"}]"
+# Don't run in a local environment.
+if [[ -n "${OPENSHIFT_CI}" ]]; then
+    # Use the appropriate image for the MCG console plugin.
+    oc patch csv "${MCG_CSV_NAME}" -n redhat-data-federation --type='json' -p \
+        "[{'op': 'replace', 'path': '/spec/install/spec/deployments/1/spec/template/spec/containers/0/image', 'value': \"${MCG_CONSOLE_IMAGE}\"}]"
+fi
+
+sleep 10m # [Debug]
