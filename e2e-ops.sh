@@ -41,7 +41,7 @@ fi
 installMCGAddon
 
 # Wait until the operator CSV exists.
-timeout 2m bash -c "waitUntilCSVExists \"${MCG_DISPLAY_NAME}\""
+timeout 10m bash -c "waitUntilCSVExists \"${MCG_DISPLAY_NAME}\""
 # Check if the CSV installation succeeded.
 timeout 10m bash -c "waitUntilCSVIsReady \"${MCG_DISPLAY_NAME}\""
 
