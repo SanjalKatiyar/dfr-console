@@ -21,4 +21,18 @@ export const MCGMSCommon = {
       '/mcgms/cluster/resource/noobaa.io~v1alpha1~NamespaceStore'
     );
   },
+  checkDefaultBucketExistence: () => {
+    MCGMSCommon.visitMcgMsDashboard();
+    cy.log('checking whether default bucket is created');
+    cy.byLegacyTestID('horizontal-link-Buckets').click();
+    cy.byTestRows('resource-row').each(($el) => {
+      cy.wrap($el).within(() => {
+        /* eslint-disable cypress/require-data-selectors */
+        cy.get('td')
+          .eq(0)
+          .should('be.visible')
+          .should('contain', 'nooba-default-bucket-class');
+      });
+    });
+  },
 };

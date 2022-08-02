@@ -19,6 +19,7 @@ import { MCGMSCommon } from '../views/mcg-ms-common';
 describe('data source creation', () => {
   before(() => {
     cy.login();
+    MCGMSCommon.checkDefaultBucketExistence();
   });
 
   beforeEach(() => {
