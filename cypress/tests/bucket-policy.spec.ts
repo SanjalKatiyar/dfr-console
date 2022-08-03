@@ -4,6 +4,7 @@ import {
   PVC_NAME,
   DATA_SOURCE_NAME_NSFS,
   SINGLE_BUCKET_POLICY_WITH_CACHE,
+  TEST_DATA_SOURCE,
 } from '../constants/tests';
 import { dataSourceNSFS } from '../mocks/data-source';
 import {
@@ -73,9 +74,10 @@ describe('Bucket policy page', () => {
     cy.log('Enable Cache');
     cy.byTestID('enable-cache-checkbox').should('be.visible').check();
     ConfirmCreateBucket();
+    checkBucketCreation(SINGLE_BUCKET_POLICY, TEST_DATA_SOURCE);
+  });
 
-    it('deletes created Bucket policy', () => {
-      deleteBucket(SINGLE_BUCKET_POLICY_WITH_CACHE);
-    });
+  it('deletes created Bucket policy', () => {
+    deleteBucket(SINGLE_BUCKET_POLICY_WITH_CACHE);
   });
 });
