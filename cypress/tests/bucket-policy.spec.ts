@@ -3,9 +3,12 @@ import {
   SINGLE_BUCKET_POLICY,
   PVC_NAME,
   DATA_SOURCE_NAME_NSFS,
+  Providers,
+  TEST_DATA_SOURCE,
 } from '../constants/tests';
 import { dataSourceNSFS } from '../mocks/data-source';
 import { projectNameSpace } from '../views/common';
+import { createDataSource } from '../views/data-resource';
 import { MCGMSCommon } from '../views/mcg-ms-common';
 import { pvc } from '../views/pvc';
 
@@ -82,6 +85,55 @@ describe('Bucket policy page', () => {
         .should('be.visible')
         .should('contain', '1 ObjectBucketClaim');
     });
+  });
+
+  it('deletes created Bucket policy', () => {
+    cy.byTestID(SINGLE_BUCKET_POLICY).first().click();
+    cy.byTestID('details-actions').find('button').click();
+    cy.byTestID('details-actions').find('li').last().click();
+    cy.byTestID('delete-action').click();
+    cy.byTestID(SINGLE_BUCKET_POLICY).should('not.exist');
+  });
+
+  it('creates Bucket policy with single data source created from bucket policy flow', () => {
+    cy.byTestID('item-create').click();
+    cy.byTestID('bucket-name-text').type(SINGLE_BUCKET_POLICY);
+    cy.byTestID('read-write-dropdown')
+      .should('be.visible')
+      .find('button')
+      .first()
+      .click();
+    cy.log('Create a data source');
+    cy.byTestID('read-write-dropdown')
+      .should('be.visible')
+      .find('ul')
+      .find('button')
+      .first()
+      .click();
+    createDataSource(Providers.AWS, TEST_DATA_SOURCE);
+    cy.byTestID('namespace-dropdown')
+      .should('be.visible')
+      .contains(DATA_FEDERATION_NAMESPACE);
+    cy.log('Create bucket policy');
+    cy.byTestID('confirm-action-bucket').click();
+    cy.log('Verify bucket policy created');
+    cy.byTestSelector('details-item-value__Name').should(
+      'contain',
+      SINGLE_BUCKET_POLICY
+    );
+    cy.log('Verify bucket policy is Ready');
+    cy.byTestID('status-text').should('contain', 'Ready');
+    cy.log('Verify only 1 data source is connected');
+    cy.byTestID('mcg-resource-popover')
+      .should('be.visible')
+      .should('contain', '1 data source');
+    cy.log('Verify name of the connected data source');
+    cy.byTestID('mcg-resource-popover').should('be.visible').click();
+    cy.contains(TEST_DATA_SOURCE);
+    cy.log('Verify if OBC is created or not');
+    cy.byTestID('obc-resource-popover')
+      .should('be.visible')
+      .should('contain', '1 ObjectBucketClaim');
   });
 
   it('deletes created Bucket policy', () => {
