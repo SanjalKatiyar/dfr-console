@@ -55,7 +55,10 @@ describe('Bucket policy creation of nsfs type', () => {
         dataSourceNSFS(DATA_SOURCE_NAME_NSFS, PVC_NAME, 'e2e-subPath')
       )}' | oc create -f -`
     ).then(() => {
-      BPCommon.createUsingSingleDS(SINGLE_BUCKET_POLICY, DATA_SOURCE_NAME_NSFS);
+      BPCommon.createUsingSingleDSAndExistingDataSource(
+        SINGLE_BUCKET_POLICY,
+        DATA_SOURCE_NAME_NSFS
+      );
       BPCommon.confirmCreateBucket();
       BPCommon.checkBucketCreation(SINGLE_BUCKET_POLICY, DATA_SOURCE_NAME_NSFS);
     });
@@ -88,7 +91,7 @@ describe('Bucket policy creation with single data source and enabled cache', () 
   });
 
   it('creates Bucket policy with single data source and enabled cache', () => {
-    BPCommon.createUsingSingleDS(
+    BPCommon.createUsingSingleDSAndNewDataSource(
       SINGLE_BUCKET_POLICY_WITH_CACHE,
       TEST_DATA_SOURCE
     );

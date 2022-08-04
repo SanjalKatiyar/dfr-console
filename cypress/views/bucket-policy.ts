@@ -1,13 +1,28 @@
 import { DATA_FEDERATION_NAMESPACE } from '../constants/common';
-import {
-  DATA_SOURCE_INPUTS,
-  Providers,
-  TEST_DATA_SOURCE,
-} from '../constants/tests';
+import { DATA_SOURCE_INPUTS, Providers } from '../constants/tests';
 import { createDataSource } from './data-resource';
 
 export const BPCommon = {
-  createUsingSingleDS: (bucketName: string, dataSourceName: string) => {
+  createUsingSingleDSAndExistingDataSource: (
+    bucketName: string,
+    dataSourceName: string
+  ) => {
+    cy.log(`creating bucket ${bucketName}`);
+    cy.byTestID('item-create').click();
+    cy.log(`entering bucket name as ${bucketName}`);
+    cy.byTestID('bucket-name-text').type(bucketName);
+    cy.byTestID('read-write-dropdown')
+      .should('be.visible')
+      .find('button')
+      .first()
+      .click();
+    cy.log(`Creating new data source`);
+    cy.contains(dataSourceName).click();
+  },
+  createUsingSingleDSAndNewDataSource: (
+    bucketName: string,
+    dataSourceName: string
+  ) => {
     cy.log(`creating bucket ${bucketName}`);
     cy.byTestID('item-create').click();
     cy.log(`entering bucket name as ${bucketName}`);
