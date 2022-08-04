@@ -68,6 +68,7 @@ const DataResourceDropdown: React.FC<DataResourceDropdownProps> = ({
             key="data-source-add-modal"
             className="create-data-source__modal-button"
             variant="plain"
+            data-test="add-data-source-item"
             onClick={() => {
               setOpen(false);
               launchModal();
