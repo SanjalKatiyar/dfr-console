@@ -39,23 +39,39 @@ describe('data source creation', () => {
 
   it('creates a data source having AWS as the provider', () => {
     cy.onlyOn(AWS_CREDS_EXIST);
-    createDataSource(Providers.AWS, TEST_DATA_SOURCE);
+    createDataSource(
+      Providers.AWS,
+      TEST_DATA_SOURCE,
+      DATA_SOURCE_INPUTS.targetBucket
+    );
     checkDataSourceCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
     cy.byTestID(`status-text`).should('contain', 'Ready');
   });
 
   it('creates a data source having S3 Compatible as the provider', () => {
-    createDataSource(Providers.S3, TEST_DATA_SOURCE);
+    createDataSource(
+      Providers.S3,
+      TEST_DATA_SOURCE,
+      DATA_SOURCE_INPUTS.targetBucket
+    );
     checkDataSourceCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
   });
 
   it('creates a data source having Azure Blob as the provider', () => {
-    createDataSource(Providers.AZURE, TEST_DATA_SOURCE);
+    createDataSource(
+      Providers.AZURE,
+      TEST_DATA_SOURCE,
+      DATA_SOURCE_INPUTS.targetBucket
+    );
     checkDataSourceCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
   });
 
   it('creates a data source having IBM COS as the provider', () => {
-    createDataSource(Providers.IBM, TEST_DATA_SOURCE);
+    createDataSource(
+      Providers.IBM,
+      TEST_DATA_SOURCE,
+      DATA_SOURCE_INPUTS.targetBucket
+    );
     checkDataSourceCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
   });
 });
@@ -69,7 +85,11 @@ describe('data source deletion', () => {
     MCGMSCommon.visitDataSourceListPage();
     navigateToCreatePage();
     app.waitForLoad();
-    createDataSource(Providers.AWS, TEST_DATA_SOURCE);
+    createDataSource(
+      Providers.AWS,
+      TEST_DATA_SOURCE,
+      DATA_SOURCE_INPUTS.targetBucket
+    );
     checkDataSourceCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE, false);
   });
 

@@ -68,6 +68,7 @@ const DataResourceDropdown: React.FC<DataResourceDropdownProps> = ({
             key="data-source-add-modal"
             className="create-data-source__modal-button"
             variant="plain"
+            data-test="add-data-source-item"
             onClick={() => {
               setOpen(false);
               launchModal();
@@ -87,6 +88,7 @@ const DataResourceDropdown: React.FC<DataResourceDropdownProps> = ({
       className={classNames(props?.className)}
       variant={variant}
       aria-label={t('Select a data source')}
+      data-test="data-source-selection-item"
       onToggle={setOpen}
       onSelect={(e, selection) => {
         onChange(selection as string);
@@ -132,6 +134,7 @@ export const SingleDataResource: React.FC<DataResourceProps> = ({
       <Checkbox
         id="cache-checkbox"
         label={t('Enable cache')}
+        data-test="enable-cache-checkbox"
         onChange={(checked) =>
           dispatch({
             type: BucketPolicyActionType.SET_CACHE,
