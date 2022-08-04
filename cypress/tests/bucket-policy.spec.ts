@@ -87,9 +87,11 @@ describe('Bucket policy creation with single data source and enabled cache', () 
     cy.logout();
   });
 
-
   it('creates Bucket policy with single data source and enabled cache', () => {
-    BPCommon.createUsingSingleDS(SINGLE_BUCKET_POLICY_WITH_CACHE, TEST_DATA_SOURCE);
+    BPCommon.createUsingSingleDS(
+      SINGLE_BUCKET_POLICY_WITH_CACHE,
+      TEST_DATA_SOURCE
+    );
     cy.log('Enable Cache');
     cy.byTestID('enable-cache-checkbox').should('be.visible').check();
     BPCommon.confirmCreateBucket();

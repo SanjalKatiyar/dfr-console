@@ -1,9 +1,7 @@
 import { MINUTE, SECOND } from '../constants/common';
 import { DATA_SOURCE_INPUTS, Providers } from '../constants/tests';
 
-const inputCustomSecrets = (
-  targetBucket: string
-) => {
+const inputCustomSecrets = (targetBucket: string) => {
   const { accessKey, secretKey } = DATA_SOURCE_INPUTS;
   cy.log('setting up custom secret for the resource');
   cy.byTestID('switch-to-credentials').click();
