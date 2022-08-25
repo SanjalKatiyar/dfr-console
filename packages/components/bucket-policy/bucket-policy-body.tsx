@@ -4,7 +4,6 @@ import {
   K8sResourceCommon,
   K8sVerb,
 } from '@openshift-console/dynamic-plugin-sdk';
-import * as _ from 'lodash';
 import {
   Form,
   FormGroup,

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { k8sPatch } from '@openshift-console/dynamic-plugin-sdk';
-import * as _ from 'lodash';
 import { useHistory } from 'react-router';
 import { Alert, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { DeploymentModel } from '../../../models';

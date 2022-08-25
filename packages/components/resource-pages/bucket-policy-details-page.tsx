@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { pluralize } from '@patternfly/react-core';
 import {
   DATA_FEDERATION_NAMESPACE,

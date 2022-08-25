@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 import { HealthBody } from '@openshift-console/dynamic-plugin-sdk-internal';
-import * as _ from 'lodash';
 import { Link } from 'react-router-dom';
 import {
   Gallery,

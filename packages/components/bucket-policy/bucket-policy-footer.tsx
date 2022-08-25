@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { ActionGroup, Button } from '@patternfly/react-core';
 import { BucketClassType } from '../../constants';
 import { ButtonBar } from '../../utils/generics/ButtonBar';

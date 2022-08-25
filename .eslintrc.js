@@ -18,8 +18,9 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react', '@typescript-eslint', 'import'],
+  plugins: ['react', '@typescript-eslint', 'import', 'unused-imports'],
   rules: {
+    'import/no-extraneous-dependencies': 'error',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'import/prefer-default-export': 'off',
@@ -64,6 +65,7 @@ module.exports = {
         'newlines-between': 'never',
       },
     ],
+    'unused-imports/no-unused-imports': 'error',
   },
   settings: {
     react: {
