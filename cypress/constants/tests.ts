@@ -6,8 +6,6 @@ export const STATUS_CARD_TITLE = 'Data Federation service';
 
 // Bucket policy
 export const SINGLE_BUCKET_POLICY = 'e2e-bucket-single';
-export const PVC_NAME = 'e2e-pvc';
-export const DATA_SOURCE_NAME_NSFS = 'e2e-nsfs-data-source';
 export const DATA_SOURCE_NAME_AWS = 'e2e-aws-data-source';
 
 // constants for data source test cases

@@ -1,24 +1,19 @@
-import { DATA_FEDERATION_NAMESPACE, MINUTE } from '../constants/common';
+import { DATA_FEDERATION_NAMESPACE } from '../constants/common';
 import {
-  PVC_NAME,
-  DATA_SOURCE_NAME_NSFS,
   DATA_SOURCE_NAME_AWS,
+  Providers,
+  TEST_DATA_SOURCE,
+  secretInputs,
+  DATA_SOURCE_INPUTS,
 } from '../constants/tests';
-import { dataSourceAWS, dataSourceNSFS } from '../mocks/data-source';
+import { dataSourceAWS } from '../mocks/data-source';
 import { app } from '../views/common';
+import { DSCommon } from '../views/data-resource';
 import { MCGMSCommon } from '../views/mcg-ms-common';
 
 describe('admin dashboard - resource provider card', () => {
   before(() => {
     cy.login();
-    cy.exec(`oc delete --all namespacestores -n ${DATA_FEDERATION_NAMESPACE}`, {
-      failOnNonZeroExit: false,
-    }).then(() => {
-      cy.exec(`oc delete pvc ${PVC_NAME} -n ${DATA_FEDERATION_NAMESPACE}`, {
-        timeout: 3 * MINUTE,
-        failOnNonZeroExit: false,
-      });
-    });
   });
 
   beforeEach(() => {
@@ -29,12 +24,8 @@ describe('admin dashboard - resource provider card', () => {
   after(() => {
     cy.exec(`oc delete --all namespacestores -n ${DATA_FEDERATION_NAMESPACE}`, {
       failOnNonZeroExit: false,
-    }).then(() => {
-      cy.exec(`oc delete pvc ${PVC_NAME} -n ${DATA_FEDERATION_NAMESPACE}`, {
-        timeout: 3 * MINUTE,
-        failOnNonZeroExit: false,
-      });
     });
+    DSCommon.deleteFromCmd(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
     cy.logout();
   });
 
@@ -55,12 +46,25 @@ describe('admin dashboard - resource provider card', () => {
   });
 
   it('should display the count of providers of data source which are in ready state', () => {
-    cy.exec(
-      `echo '${JSON.stringify(
-        dataSourceNSFS(DATA_SOURCE_NAME_NSFS, PVC_NAME, 'e2e-subPath')
-      )}' | oc create -f -`
-    ).then(() => {
-      cy.byTestID('nb-resource-providers-card').contains('1 Filesystem');
-    });
+    cy.log('creating a ready data source for Buclet policy test');
+    MCGMSCommon.visitDataSourceListPage(true);
+    DSCommon.navigateToCreatePage();
+    app.waitForLoad();
+    const { awsAccessKey, awsSecretKey, targetBucket } = DATA_SOURCE_INPUTS;
+    const correctSecretCredentials: secretInputs = {
+      accessKey: awsAccessKey,
+      secretKey: awsSecretKey,
+    };
+    DSCommon.create(
+      Providers.AWS,
+      TEST_DATA_SOURCE,
+      targetBucket,
+      correctSecretCredentials
+    );
+    DSCommon.checkCreation(TEST_DATA_SOURCE, DATA_FEDERATION_NAMESPACE);
+    cy.byTestID(`resource-status`).should('contain', 'Ready');
+
+    MCGMSCommon.visitMcgMsDashboard();
+    cy.byTestID('nb-resource-providers-card').contains('1 AWS');
   });
 });

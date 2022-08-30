@@ -1,4 +1,4 @@
-import { DATA_FEDERATION_NAMESPACE, MINUTE, SECOND } from '../constants/common';
+import { DATA_FEDERATION_NAMESPACE, SECOND } from '../constants/common';
 
 export const BPCommon = {
   createSingle: (
