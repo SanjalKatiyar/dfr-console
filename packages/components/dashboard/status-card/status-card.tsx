@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { HealthBody } from '@openshift-console/dynamic-plugin-sdk-internal';
-import * as _ from 'lodash';
 import {
   Gallery,
   GalleryItem,

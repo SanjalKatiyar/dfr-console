@@ -14,7 +14,7 @@ import {
   VirtualizedTable,
 } from '@openshift-console/dynamic-plugin-sdk';
 import classNames from 'classnames';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { RouteComponentProps } from 'react-router';
 import { sortable } from '@patternfly/react-table';
 import { OBC_LIST_PATH, OBJECT_BUCKET_CLAIMS } from '../../constants';

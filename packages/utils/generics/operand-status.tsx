@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { K8sResourceCondition, K8sResourceKind } from '../../types';
 import { Status } from '../status/Status';
 import { SuccessStatus } from '../status/statuses';

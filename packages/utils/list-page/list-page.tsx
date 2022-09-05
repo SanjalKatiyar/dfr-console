@@ -12,7 +12,6 @@ import {
   RowProps,
 } from '@openshift-console/dynamic-plugin-sdk';
 import { K8sModel } from '@openshift-console/dynamic-plugin-sdk/lib/api/common-types';
-import * as _ from 'lodash';
 import { referenceForModel } from '..';
 import { DATA_FEDERATION_NAMESPACE } from '../../constants';
 import { useCustomTranslation } from '../hooks/useCustomTranslationHook';
