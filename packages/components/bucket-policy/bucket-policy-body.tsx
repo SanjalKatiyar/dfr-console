@@ -218,9 +218,6 @@ export const BucketPolicyBody: React.FC<BucketPolicyBodyProps> = ({
           ))}
       </FormGroup>
       <FormGroup fieldId="namespace-name" label={t('Namespace')} isRequired>
-        <p className="pf-c-form__helper-text">
-          {t('Creates ObjectBucketClaim in the specified namespace.')}
-        </p>
         {isClusterAdminLoading ? (
           <LoadingBox className="loading-box loading-box__loading" />
         ) : (
@@ -235,11 +232,11 @@ export const BucketPolicyBody: React.FC<BucketPolicyBodyProps> = ({
             data-test="namespace-dropdown"
           />
         )}
+        <p className="pf-c-form__helper-text">
+          {t('Creates ObjectBucketClaim in the specified namespace.')}
+        </p>
       </FormGroup>
       <FormGroup fieldId="replication" label={t('Replication')}>
-        <p className="pf-c-form__helper-text">
-          {t('Optionally, select the bucket you want to replicate data to.')}
-        </p>
         <GenericDropdown
           id="replication"
           variant={SelectVariant.checkbox}
@@ -248,6 +245,9 @@ export const BucketPolicyBody: React.FC<BucketPolicyBodyProps> = ({
           selections={replicationOBCs}
           secondaryTextGenerator={getNamespace}
         />
+        <p className="pf-c-form__helper-text">
+          {t('Optionally, select the bucket you want to replicate data to.')}
+        </p>
       </FormGroup>
     </Form>
   );
