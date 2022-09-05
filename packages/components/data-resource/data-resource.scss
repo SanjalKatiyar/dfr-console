@@ -3,6 +3,7 @@
 }
 
 .nb-endpoints-form-entry {
+  padding-right: var(--pf-global--spacer--xl);
   width: 100%;
 }
 
@@ -69,6 +70,10 @@
 .nb-endpoints-form-entry__dropdown--short {
   max-height: 30vh;
   overflow-y: auto;
+}
+
+.mcgms-resourceDropdown__container {
+  padding-right: var(--pf-global--spacer--xl);
 }
 
 .mcgms-disabledDropdown__container {

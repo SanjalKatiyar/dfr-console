@@ -3,7 +3,7 @@
     margin: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) 0
       var(--pf-global--spacer--lg);
     max-width: 75%;
-    padding-bottom: 20vh;
+    padding-bottom: 30vh;
   }
 
   &__form--margin-bottom {
@@ -44,4 +44,9 @@
 
 .mcgms-breadcrumbs-header {
   margin-top: var(--pf-global--spacer--md);
+}
+
+.pf-c-select__menu {
+  max-height: 30vh;
+  overflow-y: auto;
 }
