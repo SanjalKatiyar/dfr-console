@@ -20,6 +20,7 @@ const dummyTargetBucket = 'test-target-bucket';
 describe('data source creation', () => {
   before(() => {
     cy.login();
+    MCGMSCommon.checkDefaultBucketExistence();
   });
 
   beforeEach(() => {
